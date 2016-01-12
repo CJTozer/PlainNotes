@@ -8,5 +8,6 @@
   { "caption": "Notes: Archive"       , "command": "note_archive"      },
   { "caption": "Notes: Delete"        , "command": "note_remove"       },
   { "caption": "Notes: Change Color…" , "command": "note_change_color" },
-  { "caption": "Notes: Unarchive…"    , "command": "note_unarchive"    }
+  { "caption": "Notes: Unarchive…"    , "command": "note_unarchive"    },
+  { "caption": "Notes: Create Note from Inbox Item", "command": "inbox_item_to_note"    }
 ]

@@ -120,15 +120,15 @@ class NotesOpenCommand(sublime_plugin.ApplicationCommand):
 
 class NotesNewCommand(sublime_plugin.ApplicationCommand):
 
-    def run(self, title=None):
+    def run(self, title=None, text=""):
         self.notes_dir = get_root()
         self.window = sublime.active_window()
         if title is None:
-            self.window.show_input_panel("Title", "", self.create_note, None, None)
+            self.window.show_input_panel("Title", "", lambda title: self.create_note(title, text), None, None)
         else:
-            self.create_note(title)
+            self.create_note(title, text)
 
-    def create_note(self, title):
+    def create_note(self, title, text=""):
         filename = title.split("/")
         if len(filename) > 1:
             title = filename[len(filename) - 1]
@@ -152,6 +152,8 @@ class NotesNewCommand(sublime_plugin.ApplicationCommand):
         view = sublime.active_window().open_file(file)
         self.insert_title_scheduled = False
         self.insert_title(title, tag, view)
+        self.insert_text_scheduled = False
+        self.insert_text(text, view)
 
     def insert_title(self, title, tag, view):
         if view.is_loading():
@@ -161,6 +163,15 @@ class NotesNewCommand(sublime_plugin.ApplicationCommand):
             return
         else:
             view.run_command("note_insert_title", {"title": title, "tag": tag})
+
+    def insert_text(self, text, view):
+        if view.is_loading():
+            if not self.insert_text_scheduled:
+                self.insert_text_scheduled = True
+                sublime.set_timeout(lambda: self.insert_text(text, view), 100)
+            return
+        else:
+            view.run_command("note_insert_text", {"text": text})
 
 
 class NotesEvents(sublime_plugin.EventListener):
@@ -187,6 +198,12 @@ class NoteInsertTitleCommand(sublime_plugin.TextCommand):
                 header = header + yaml_el + ":\n"
             header = header + "---\n"
             self.view.insert(edit, 0, header)
+
+
+class NoteInsertTextCommand(sublime_plugin.TextCommand):
+
+    def run(self, edit, text):
+        self.view.insert(edit, self.view.size(), text)
 
 
 class NoteChangeColorCommand(sublime_plugin.WindowCommand):
